@@ -1,4 +1,4 @@
-# Total-Vacation-Days-Calculator
+# Project : Total-Vacation-Days-Calculator 
 
 This Oracle PL/SQL script calculates and displays total vacation days for employees based on their category, years of experience, parental status, and special conditions. This tool provides a flexible way to determine vacation entitlements tailored to various roles and circumstances within an organization.
 
