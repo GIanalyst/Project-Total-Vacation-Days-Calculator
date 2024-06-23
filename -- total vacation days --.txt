@@ -1,0 +1,115 @@
+-- Total Vacation Days Calculator --
+
+create or replace function total_vacation_days(
+employee_category varchar2,
+experience_years int,
+kids_age int,
+kids_count int,
+special_conditions varchar2) 
+return varchar2 
+is
+main_vacation_days int;
+vd_experience int;
+vd_parenting int;
+total_vacation_days int;
+
+begin
+-- raise_application_error
+
+if employee_category not in (
+'Agricultural Production Workers', 'Responsible Positions', 
+'Non-Pedagogical Education Leaders', 'Administrative and Teaching Staff', 
+'Child Welfare Leaders', 'Education Methodologists', 'Chief Masters in Education', 
+'Production Training Masters', 'Instructors', 'Librarians', 
+'Laboratory Assistants', 'Workshop Leaders', 'Nannies', 'Cleaning Staff', 
+'Artistic Directors', 'Non-Degree Research Workers', 'Doctors', 'Medical Staff', 
+'Pharmacists', 'specialist', 'management', 'non-specialist',
+'Educational Leaders', 'Music Educators', 'All Teachers', 'Child Union Leaders', 
+'General Educators', 'Social Education Workers', 'Doctor of Sciences Researchers', 
+'Doctor of Sciences Leaders', 'Doctor of Sciences Deputies for Scientific Work', 
+'Doctor of Sciences Scientific Secretaries', 'Independent Researchers',
+'Preschool Leaders', 'Educational Methods Staff', 'Boarding School Educators', 
+'Non School Child Staff', 'Coach Instructors', 'PhD Researchers', 
+'PhD Leaders', 'PhD Deputies for Scientific Work', 'PhD Scientific Secretaries',
+'Workers Younger than 16', 'disabled', 'theatre artistic', 'television artistic', 
+'radio artistic', 'cinematography artistic', 'theatre performer', 
+'television performer', 'radio performer', 'cinematography performer',
+'Workers aged 16 to 18', 'theatre stage crew', 'television stage crew', 
+'radio stage crew', 'cinematography stage crew', 'Injured Defenders', 
+'Patriotic War Heroes', 'National Heroes', 'Soviet Heroes', 
+'WWII Veterans', 'Honored Military', 'State Award Recipients') then
+raise_application_error(-20002, 'Invalid input for employee_category.');
+end if;
+
+if employee_category in ('Agricultural Production Workers', 'Responsible Positions', 'Non-Pedagogical Education Leaders', 
+'Administrative and Teaching Staff', 'Child Welfare Leaders', 'Education Methodologists', 'Chief Masters in Education', 
+'Production Training Masters', 'Instructors', 'Librarians', 'Laboratory Assistants', 'Workshop Leaders', 'Nannies', 
+'Cleaning Staff', 'Artistic Directors', 'Non-Degree Research Workers', 'Doctors', 'Medical Staff', 'Pharmacists', 
+'specialist', 'management') then
+main_vacation_days := 30;
+
+-- total vacation days (madde 114)
+vd_experience := exp_vd(experience_years);
+vd_parenting := par_vd(kids_age, kids_count, special_conditions);
+total_vacation_days := main_vacation_days + vd_experience + vd_parenting;
+
+elsif employee_category = 'non-specialist' then
+main_vacation_days := 21;
+-- total vacation days (madde 114)
+vd_experience := exp_vd(experience_years);
+vd_parenting := par_vd(kids_age, kids_count, special_conditions);
+total_vacation_days := main_vacation_days + vd_experience + vd_parenting;
+end if;
+
+if employee_category in ('Educational Leaders', 'Music Educators', 'All Teachers', 'Child Union Leaders', 
+'General Educators', 'Social Education Workers', 'Doctor of Sciences Researchers', 'Doctor of Sciences Leaders', 
+'Doctor of Sciences Deputies for Scientific Work', 'Doctor of Sciences Scientific Secretaries', 'Independent Researchers',
+'Preschool Leaders', 'Educational Methods Staff', 'Boarding School Educators', 'Non School Child Staff', 'Coach Instructors', 
+'PhD Researchers', 'PhD Leaders', 'PhD Deputies for Scientific Work', 'PhD Scientific Secretaries', 'Workers Younger than 16', 
+'Workers aged 16 to 18', 'disabled', 'Injured Defenders', 'Patriotic War Heroes', 'National Heroes', 'Soviet Heroes', 
+'WWII Veterans', 'Honored Military', 'State Award Recipients', 'theatre stage crew', 'television stage crew', 'radio stage crew', 
+'cinematography stage crew', 'theatre artistic', 'television artistic', 'radio artistic', 'cinematography artistic', 
+'theatre performer', 'television performer', 'radio performer', 'cinematography performer') then
+case
+
+when employee_category in ('Educational Leaders', 'Music Educators', 'All Teachers', 'Child Union Leaders', 
+'General Educators', 'Social Education Workers', 'Doctor of Sciences Researchers', 'Doctor of Sciences Leaders', 
+'Doctor of Sciences Deputies for Scientific Work', 'Doctor of Sciences Scientific Secretaries', 'Independent Researchers') then
+main_vacation_days := 56;
+
+when employee_category in ('Preschool Leaders', 'Educational Methods Staff', 'Boarding School Educators', 'Non School Child Staff', 
+'Coach Instructors', 'PhD Researchers', 'PhD Leaders', 'PhD Deputies for Scientific Work', 'PhD Scientific Secretaries',
+'Workers Younger than 16', 'disabled', 'theatre artistic', 'television artistic', 'radio artistic', 'cinematography artistic', 
+'theatre performer', 'television performer', 'radio performer', 'cinematography performer') then
+main_vacation_days := 42;
+
+when employee_category in ('Workers aged 16 to 18','theatre stage crew',
+'television stage crew','radio stage crew','cinematography stage crew') then 
+main_vacation_days := 35;
+
+when employee_category in ('Injured Defenders','Patriotic War Heroes',
+'National Heroes','Soviet Heroes','WWII Veterans','Honored Military',
+'State Award Recipients')then
+main_vacation_days := 46;
+end case;
+
+-- total vacation days (madde 118-121)
+vd_experience := 0;
+vd_parenting := 0;
+total_vacation_days := main_vacation_days; 
+end if;
+
+return 'Employee category: ' || employee_category || chr(10) ||
+'Main vacation days: ' || to_char(main_vacation_days) || chr(10) ||
+'Additional vacation days (Experience): ' || to_char(vd_experience) || chr(10) ||
+'Additional vacation days (Parenting): ' || to_char(vd_parenting) || chr(10) ||
+'Total vacation days: ' || to_char(total_vacation_days);
+end;
+/
+     
+
+-- check --
+select total_vacation_days('theatre- stage crew', 16, 9, 2, 'single_father') from dual;
+select total_vacation_days('Hon-ored Military', 16, 9, 2, 'single_father') from dual;
+select total_vacation_days('non-specialist', 16, 9, 2, 'single_father') from dual;
+select total_vacation_days('management', 0.5, 9, 2, 'null') from dual;

@@ -1,0 +1,22 @@
+-- exp_vd --
+------------
+-- vacation days based on experience
+
+create or replace function exp_vd (
+experience_years int)
+return int 
+is
+extra_vacation_days int := 0;
+begin
+if experience_years >= 5 and experience_years < 10 then
+    extra_vacation_days := 2;
+elsif experience_years >= 10 and experience_years < 15 then
+    extra_vacation_days := 4;
+elsif experience_years >= 15 then
+    extra_vacation_days := 6;
+end if;
+return extra_vacation_days;
+end;
+/
+
+select exp_vd(4) from dual;

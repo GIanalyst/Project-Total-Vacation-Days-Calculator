@@ -1,0 +1,41 @@
+-- par_vd --
+-- vacation days based on parenting
+
+
+create or replace function par_vd (
+kids_age int,
+kids_count int,
+special_conditions varchar2) 
+return int is
+extra_vacation_days int := 0;
+begin
+if special_conditions not in ('woman', 'single_father', 'adopted_children', 'disabled_child','none') then
+raise_application_error(-20001, 'Invalid input for special_conditions. Valid options are: ''woman'', 
+''single_father'', ''adopted_children'', ''disabled_child'',''none''.');
+end if;
+
+if special_conditions in ('woman', 'single_father', 'adopted_children') then
+if kids_age <= 14 then
+if kids_count = 2 then
+extra_vacation_days := 2; 
+elsif kids_count >= 3 then
+extra_vacation_days := 5; 
+end if;
+end if;
+end if;
+if special_conditions = 'disabled_child' then
+extra_vacation_days := 5; 
+elsif special_conditions = 'none' then
+extra_vacation_days := 0;
+end if;
+
+return extra_vacation_days;
+end;
+/
+
+
+-- Check --
+select par_vd(10, 2, 'woman') from dual;
+select par_vd(10, 3, 'single_father') from dual;
+select par_vd(10, 1, 'disabled_child') from dual;
+select par_vd(10, 5, 'none') from dual;
